@@ -10,11 +10,6 @@ backendContentFile = "resources.zip"
 backendCoursesFile = "resources/main.json"
 resourcesUrl = "https://github.com/FOSSLingo/resources/archive/refs/heads/main.zip"
 
-vercelBackendContentFile = "/tmp/resources.zip"
-vercelBackendCoursesFile = "resources/main.json"
-
-def vercelCheck():
-  return os.environ.get("VERCEL") == "1"
 
 def setup():
   print("Setting up for first time backend use..")
@@ -37,40 +32,11 @@ def setup():
   else:
     print(data)
 
-def vercelSetup():
-  print("Setting up for first time backend use on Vercel..")
-  resourcesUrlGet = requests.request(method='GET', url='https://github.com/FOSSLingo/resources/archive/refs/heads/main.zip')
-  data = resourcesUrlGet.status_code
-  if data == 200:
-    print("HTTP 200, downloading resources")
-    with requests.get(resourcesUrl, stream=True) as r:
-      r.raise_for_status()
-      with open(vercelBackendContentFile, "wb") as f:
-        for chunk in r.iter_content(chunk_size=8192):
-          f.write(chunk)
-    shutil.unpack_archive(vercelBackendContentFile, "/tmp/")
-    os.rename("/tmp/resources-main", "/tmp/resources")
-    os.remove("/tmp/resources.zip")
-    print("Done downloading!")
-  elif data == 404:
-    print("404, retry script later")
-    sys.exit()
-  else:
-    print(data)
-
-if vercelCheck():
-  resourcesDir = "/tmp/resources"
-else:
-  resourcesDir = "/resources"
-
-if os.path.isdir(resourcesUrl) == True:
+if os.path.isdir("/resources") == True:
   print("Resources directoy present, skipping setup")
 else:
   print('Resources directory missing, starting setup;')
-  if vercelCheck():
-    vercelSetup()
-  else:
-    setup()
+  setup()
 
 app = FastAPI()
 app.mount("/resources", StaticFiles(directory="resources"), name="resources")
