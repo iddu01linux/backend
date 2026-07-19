@@ -1,4 +1,4 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "bash build.sh"
+  "buildCommand": "curl -L -o resources.zip https://github.com/FOSSLingo/resources/archive/refs/heads/main.zip && unzip -q resources.zip && mv resources-main resources && rm resources.zip"
 }
